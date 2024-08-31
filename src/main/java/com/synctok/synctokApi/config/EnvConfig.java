@@ -1,4 +1,4 @@
-package com.synctok.synctokApi.client;
+package com.synctok.synctokApi.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
