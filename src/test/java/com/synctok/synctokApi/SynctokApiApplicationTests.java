@@ -1,4 +1,4 @@
-package com.synctok.synctok_api;
+package com.synctok.synctokApi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
