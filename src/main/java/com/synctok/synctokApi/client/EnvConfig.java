@@ -1,22 +1,20 @@
 package com.synctok.synctokApi.client;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.FileSystemResource;
+
 
 @Configuration
 public class EnvConfig {
 
     @Bean
-    public Dotenv dotenv() {
-        return Dotenv.configure().ignoreIfMissing().load();
-    }
-
-    @Bean
-    public void loadEnv(Environment env, Dotenv dotenv) {
-        dotenv.entries().forEach(e ->
-                System.setProperty(e.getKey(), e.getValue())
-        );
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+        configurer.setLocation(new FileSystemResource(".env"));
+        configurer.setIgnoreResourceNotFound(true);
+        configurer.setIgnoreUnresolvablePlaceholders(true);
+        return configurer;
     }
 }
