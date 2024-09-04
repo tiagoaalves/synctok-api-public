@@ -16,7 +16,7 @@ public class CloudinaryClient {
     private final Cloudinary cloudinary;
 
     @Autowired
-    private CloudinaryClient(Cloudinary cloudinary) {
+    public CloudinaryClient(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
