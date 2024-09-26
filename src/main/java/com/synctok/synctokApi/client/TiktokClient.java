@@ -90,7 +90,7 @@ public class TiktokClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
-        HttpEntity<String> request = getInitVideoUploadRequest(title, headers);
+        HttpEntity<String> request = getInitializeVideoUploadRequest(title, headers);
         try {
             ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.POST, request, String.class);
 
@@ -108,7 +108,7 @@ public class TiktokClient {
         }
     }
 
-    private static HttpEntity<String> getInitVideoUploadRequest(String title, HttpHeaders headers) {
+    private static HttpEntity<String> getInitializeVideoUploadRequest(String title, HttpHeaders headers) {
         JSONObject postInfo = new JSONObject();
         postInfo.put("title", title);
         postInfo.put("privacy_level", "MUTUAL_FOLLOW_FRIENDS"); //
