@@ -55,4 +55,16 @@ public class GlobalExceptionHandler {
         }
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(TiktokVideoPublishingException.class)
+    public ResponseEntity<Object> handleTiktokVideoPublisingException(TiktokVideoPublishingException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("message", ex.getMessage());
+        body.put("error", "TikTok Video Initialization Failed");
+        if (ex.getCause() != null) {
+            body.put("details", ex.getCause().getMessage());
+        }
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
 }
