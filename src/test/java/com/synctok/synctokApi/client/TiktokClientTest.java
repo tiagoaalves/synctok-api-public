@@ -45,7 +45,7 @@ class TiktokClientTest {
                 eq(String.class)
         )).thenReturn(responseEntity);
 
-        TiktokClient.VideoUploadInitResult result = tiktokClient.initializeVideoUpload("Test Video Title");
+        TiktokClient.VideoUploadInitializationResult result = tiktokClient.initializeVideoUpload("Test Video Title");
 
         assertEquals("https://example.com/upload", result.uploadUrl());
         assertEquals("1234567890", result.publishId());
