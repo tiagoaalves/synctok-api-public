@@ -16,7 +16,7 @@ public class TiktokStrategy implements PlatformStrategy {
 
     @Override
     public void publishVideo(String videoUrl) {
-        System.out.println(tiktokClient.getAccessToken());
+        System.out.println(tiktokClient.initializeVideoUpload("caption #test #dev"));
         System.out.println("Publishing video to Tiktok: " + videoUrl);
     }
 }
