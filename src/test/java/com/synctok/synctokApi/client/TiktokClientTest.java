@@ -1,11 +1,10 @@
 package com.synctok.synctokApi.client;
 
-import com.synctok.synctokApi.exception.TiktokAuthException;
 import com.synctok.synctokApi.exception.TiktokVideoPublishingException;
-import org.json.JSONException;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.json.JSONObject;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpEntity;
@@ -29,71 +28,12 @@ class TiktokClientTest {
 
     private TiktokClient tiktokClient;
 
+    private static final String ACCESS_TOKEN = "test_access_token";
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        tiktokClient = new TiktokClient(restTemplate, "clientKey", "clientSecret", "redirectUri", "code");
-    }
-
-    @Test
-    void getAccessToken_Success() {
-        String successResponse = "{\"access_token\":\"test_access_token\"}";
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                eq("https://open.tiktokapis.com/v2/oauth/token/"),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(String.class)
-        )).thenReturn(responseEntity);
-
-        String accessToken = tiktokClient.getAccessToken();
-        assertEquals("test_access_token", accessToken);
-    }
-
-    @Test
-    void getAccessToken_ErrorResponse() {
-        String errorResponse = "{\"error\":\"invalid_grant\",\"error_description\":\"Invalid authorization code\"}";
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-
-        when(restTemplate.exchange(
-                eq("https://open.tiktokapis.com/v2/oauth/token/"),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(String.class)
-        )).thenReturn(responseEntity);
-
-        TiktokAuthException exception = assertThrows(TiktokAuthException.class, () -> tiktokClient.getAccessToken());
-        assertEquals("Authentication failed: Invalid authorization code", exception.getMessage());
-    }
-
-    @Test
-    void getAccessToken_HttpClientErrorException() {
-        when(restTemplate.exchange(
-                eq("https://open.tiktokapis.com/v2/oauth/token/"),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(String.class)
-        )).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
-
-        TiktokAuthException exception = assertThrows(TiktokAuthException.class, () -> tiktokClient.getAccessToken());
-        assertTrue(exception.getMessage().startsWith("Failed to get access token:"));
-    }
-
-    @Test
-    void getAccessToken_InvalidJsonResponse() {
-        String invalidResponse = "Invalid JSON";
-        ResponseEntity<String> responseEntity = new ResponseEntity<>(invalidResponse, HttpStatus.OK);
-
-        when(restTemplate.exchange(
-                eq("https://open.tiktokapis.com/v2/oauth/token/"),
-                eq(HttpMethod.POST),
-                any(HttpEntity.class),
-                eq(String.class)
-        )).thenReturn(responseEntity);
-
-        TiktokAuthException exception = assertThrows(TiktokAuthException.class, () -> tiktokClient.getAccessToken());
-        assertEquals("Failed to parse response", exception.getMessage());
+        tiktokClient = new TiktokClient(restTemplate, ACCESS_TOKEN);
     }
 
     @Test
@@ -107,7 +47,7 @@ class TiktokClientTest {
                 eq(String.class)
         )).thenReturn(responseEntity);
 
-        String result = tiktokClient.initializeVideoUpload("testAccessToken", "Test Video Title");
+        String result = tiktokClient.initializeVideoUpload("Test Video Title");
         JSONObject jsonResult = new JSONObject(result);
 
         assertEquals("https://example.com/upload", jsonResult.getJSONObject("data").getString("upload_url"));
@@ -124,7 +64,7 @@ class TiktokClientTest {
         )).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("testAccessToken", "Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
         assertTrue(exception.getMessage().startsWith("Failed to initialize video upload:"));
     }
 
@@ -140,7 +80,7 @@ class TiktokClientTest {
         )).thenReturn(responseEntity);
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("testAccessToken", "Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
         assertEquals("Failed to parse response", exception.getMessage());
     }
 
@@ -155,7 +95,7 @@ class TiktokClientTest {
         )).thenReturn(responseEntity);
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("testAccessToken", "Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
         assertEquals("Received empty response from server", exception.getMessage());
     }
 }
