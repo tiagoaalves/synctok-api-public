@@ -27,23 +27,24 @@ public class TiktokClient {
         this.accessToken = accessToken;
     }
 
-    public String initializeVideoUpload(String title) {
+    public VideoUploadInitializationResult initializeVideoUpload(String title) {
         String uploadUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
 
         HttpEntity<String> request = getInitializeVideoUploadRequest(title, headers);
-
         try {
             ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.POST, request, String.class);
-
             String responseBody = response.getBody();
             if (responseBody == null || responseBody.isEmpty()) {
                 throw new TiktokVideoPublishingException("Received empty response from server");
             }
             JSONObject jsonResponse = new JSONObject(responseBody);
-            return jsonResponse.toString();
+            JSONObject data = jsonResponse.getJSONObject("data");
+            String uploadUrlResult = data.getString("upload_url");
+            String publishId = data.getString("publish_id");
+            return new VideoUploadInitializationResult(uploadUrlResult, publishId);
         } catch (HttpClientErrorException e) {
             throw new TiktokVideoPublishingException("Failed to initialize video upload: " + e.getResponseBodyAsString(), e);
         } catch (JSONException e) {
@@ -68,4 +69,6 @@ public class TiktokClient {
 
         return new HttpEntity<>(requestBody.toString(), headers);
     }
+
+    public record VideoUploadInitializationResult(String uploadUrl, String publishId) {}
 }

@@ -1,8 +1,6 @@
 package com.synctok.synctokApi.client;
 
 import com.synctok.synctokApi.exception.TiktokVideoPublishingException;
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -37,8 +35,8 @@ class TiktokClientTest {
     }
 
     @Test
-    void initializeVideoUpload_Success() throws JSONException {
-        String successResponse = "{\"data\":{\"upload_url\":\"https://example.com/upload\",\"video_id\":\"1234567890\"}}";
+    void initializeVideoUpload_Success() {
+        String successResponse = "{\"data\":{\"upload_url\":\"https://example.com/upload\",\"publish_id\":\"1234567890\"}}";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
         when(restTemplate.exchange(
                 eq("https://open.tiktokapis.com/v2/post/publish/video/init/"),
@@ -47,11 +45,10 @@ class TiktokClientTest {
                 eq(String.class)
         )).thenReturn(responseEntity);
 
-        String result = tiktokClient.initializeVideoUpload("Test Video Title");
-        JSONObject jsonResult = new JSONObject(result);
+        TiktokClient.VideoUploadInitializationResult result = tiktokClient.initializeVideoUpload("Test Video Title");
 
-        assertEquals("https://example.com/upload", jsonResult.getJSONObject("data").getString("upload_url"));
-        assertEquals("1234567890", jsonResult.getJSONObject("data").getString("video_id"));
+        assertEquals("https://example.com/upload", result.uploadUrl());
+        assertEquals("1234567890", result.publishId());
     }
 
     @Test
