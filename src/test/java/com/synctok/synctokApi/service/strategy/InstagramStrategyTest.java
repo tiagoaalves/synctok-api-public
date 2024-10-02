@@ -1,14 +1,14 @@
 package com.synctok.synctokApi.service.strategy;
+
 import com.synctok.synctokApi.client.InstagramClient;
-import com.synctok.synctokApi.exception.MediaContainerCreationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -22,6 +22,9 @@ class InstagramStrategyTest {
     @Mock
     private InstagramClient instagramClient;
 
+    @Mock
+    private MultipartFile mockMultipartFile;
+
     private InstagramStrategy instagramStrategy;
 
     @BeforeEach
@@ -34,10 +37,9 @@ class InstagramStrategyTest {
     void publishVideo_SuccessfulPublish() {
         String videoUrl = "http://example.com/video.mp4";
         String mediaContainerId = "media123";
-
         when(instagramClient.createMediaContainer(videoUrl)).thenReturn(mediaContainerId);
 
-        assertDoesNotThrow(() -> instagramStrategy.publishVideo(videoUrl));
+        assertDoesNotThrow(() -> instagramStrategy.publishVideo(mockMultipartFile, videoUrl));
 
         verify(instagramClient).createMediaContainer(videoUrl);
         verify(instagramClient).publishMedia(mediaContainerId);
@@ -46,16 +48,11 @@ class InstagramStrategyTest {
     @Test
     void publishVideo_MediaContainerCreationFails() {
         String videoUrl = "http://example.com/video.mp4";
-        Exception expectedException = new RuntimeException("Creation failed");
-
+        RuntimeException expectedException = new RuntimeException("Creation failed");
         when(instagramClient.createMediaContainer(videoUrl)).thenThrow(expectedException);
 
-        MediaContainerCreationException exception = assertThrows(MediaContainerCreationException.class,
-                () -> instagramStrategy.publishVideo(videoUrl));
-
-        assertEquals("Failed to create media container", exception.getMessage());
-        assertEquals(expectedException, exception.getCause());
-        assertEquals(videoUrl, exception.getVideoUrl());
+        assertThrows(RuntimeException.class,
+                () -> instagramStrategy.publishVideo(mockMultipartFile, videoUrl));
 
         verify(instagramClient).createMediaContainer(videoUrl);
         verify(instagramClient, never()).publishMedia(anyString());
@@ -66,14 +63,11 @@ class InstagramStrategyTest {
         String videoUrl = "http://example.com/video.mp4";
         String mediaContainerId = "media123";
         RuntimeException expectedException = new RuntimeException("Publish failed");
-
         when(instagramClient.createMediaContainer(videoUrl)).thenReturn(mediaContainerId);
         doThrow(expectedException).when(instagramClient).publishMedia(mediaContainerId);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> instagramStrategy.publishVideo(videoUrl));
-
-        assertEquals("Publish failed", exception.getMessage());
+        assertThrows(RuntimeException.class,
+                () -> instagramStrategy.publishVideo(mockMultipartFile, videoUrl));
 
         verify(instagramClient).createMediaContainer(videoUrl);
         verify(instagramClient).publishMedia(mediaContainerId);

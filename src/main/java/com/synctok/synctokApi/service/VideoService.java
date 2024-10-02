@@ -37,7 +37,7 @@ public class VideoService {
             if (strategy == null) {
                 throw new UnsupportedPlatformException(platform);
             }
-            strategy.publishVideo(videoUrl);
+            strategy.publishVideo(videoFile, videoUrl);
         }
     }
 
