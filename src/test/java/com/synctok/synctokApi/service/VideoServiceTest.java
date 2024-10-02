@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -42,14 +41,14 @@ class VideoServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        List<PlatformStrategy> strategies = Arrays.asList(instagramStrategy);
+        List<PlatformStrategy> strategies = List.of(instagramStrategy);
         videoService = new VideoService(strategies, cloudinaryClient);
     }
 
     @Test
     void publishVideo_SuccessfulPublish() throws IOException {
         String videoUrl = "http://example.com/video.mp4";
-        List<String> platforms = Arrays.asList("instagram");
+        List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
@@ -62,7 +61,7 @@ class VideoServiceTest {
     @Test
     void publishVideo_UnsupportedPlatform() throws IOException {
         String videoUrl = "http://example.com/video.mp4";
-        List<String> platforms = Arrays.asList("unsupported");
+        List<String> platforms = List.of("unsupported");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
@@ -75,7 +74,7 @@ class VideoServiceTest {
 
     @Test
     void publishVideo_CloudinaryClientThrowsIOException() throws IOException {
-        List<String> platforms = Arrays.asList("instagram");
+        List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenThrow(new IOException("Upload failed"));
 
@@ -88,7 +87,7 @@ class VideoServiceTest {
     @Test
     void publishVideo_StrategyThrowsException() throws IOException {
         String videoUrl = "http://example.com/video.mp4";
-        List<String> platforms = Arrays.asList("instagram");
+        List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
         doThrow(new RuntimeException("Publish failed")).when(instagramStrategy).publishVideo(videoFile, videoUrl);
@@ -102,7 +101,7 @@ class VideoServiceTest {
     @Test
     void publishVideo_CaseInsensitivePlatformNames() throws IOException {
         String videoUrl = "http://example.com/video.mp4";
-        List<String> platforms = Arrays.asList("InStAgRaM");
+        List<String> platforms = List.of("InStAgRaM");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
