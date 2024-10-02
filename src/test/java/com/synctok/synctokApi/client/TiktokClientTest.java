@@ -11,7 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,6 +27,9 @@ class TiktokClientTest {
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Mock
+    private MultipartFile mockMultipartFile;
 
     private TiktokClient tiktokClient;
 
@@ -45,14 +52,26 @@ class TiktokClientTest {
                 eq(String.class)
         )).thenReturn(responseEntity);
 
-        TiktokClient.VideoUploadInitializationResult result = tiktokClient.initializeVideoUpload("Test Video Title");
+        when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
+
+        TiktokClient.VideoUploadInitializationResult result = tiktokClient.initializeVideoUpload(mockMultipartFile, "Test Video Title");
 
         assertEquals("https://example.com/upload", result.uploadUrl());
         assertEquals("1234567890", result.publishId());
     }
 
     @Test
+    void initializeVideoUpload_FileTooLarge() {
+        when(mockMultipartFile.getSize()).thenReturn(501L * 1024 * 1024); // 501 MB, exceeding the 500 MB limit
+
+        assertThrows(TiktokVideoPublishingException.class,
+                () -> tiktokClient.initializeVideoUpload(mockMultipartFile, "Test Video Title"),
+                "File size exceeds maximum allowed size");
+    }
+
+    @Test
     void initializeVideoUpload_HttpClientErrorException() {
+        when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
         when(restTemplate.exchange(
                 eq("https://open.tiktokapis.com/v2/post/publish/video/init/"),
                 eq(HttpMethod.POST),
@@ -61,12 +80,13 @@ class TiktokClientTest {
         )).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload(mockMultipartFile, "Test Video Title"));
         assertTrue(exception.getMessage().startsWith("Failed to initialize video upload:"));
     }
 
     @Test
     void initializeVideoUpload_InvalidJsonResponse() {
+        when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
         String invalidResponse = "Invalid JSON";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(invalidResponse, HttpStatus.OK);
         when(restTemplate.exchange(
@@ -77,12 +97,13 @@ class TiktokClientTest {
         )).thenReturn(responseEntity);
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload(mockMultipartFile, "Test Video Title"));
         assertEquals("Failed to parse response", exception.getMessage());
     }
 
     @Test
-    void initializeVideoUpload_NullResponse() {
+    void initializeVideoUpload_NullResponse() throws IOException {
+        when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
         ResponseEntity<String> responseEntity = new ResponseEntity<>(null, HttpStatus.OK);
         when(restTemplate.exchange(
                 eq("https://open.tiktokapis.com/v2/post/publish/video/init/"),
@@ -92,7 +113,40 @@ class TiktokClientTest {
         )).thenReturn(responseEntity);
 
         TiktokVideoPublishingException exception = assertThrows(TiktokVideoPublishingException.class,
-                () -> tiktokClient.initializeVideoUpload("Test Video Title"));
+                () -> tiktokClient.initializeVideoUpload(mockMultipartFile, "Test Video Title"));
         assertEquals("Received empty response from server", exception.getMessage());
+    }
+
+    @Test
+    void uploadVideo_Success() throws IOException {
+        when(mockMultipartFile.getSize()).thenReturn(10L * 1024 * 1024); // 10 MB file size
+        when(mockMultipartFile.getBytes()).thenReturn(new byte[10 * 1024 * 1024]);
+
+        ResponseEntity<String> responseEntity = new ResponseEntity<>(HttpStatus.CREATED);
+        when(restTemplate.exchange(
+                eq("https://example.com/upload"),
+                eq(HttpMethod.PUT),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenReturn(responseEntity);
+
+        assertDoesNotThrow(() -> tiktokClient.uploadVideo(mockMultipartFile, "https://example.com/upload"));
+    }
+
+    @Test
+    void uploadVideo_ChunkUploadFailure() throws IOException {
+        when(mockMultipartFile.getSize()).thenReturn(10L * 1024 * 1024); // 10 MB file size
+        when(mockMultipartFile.getBytes()).thenReturn(new byte[10 * 1024 * 1024]);
+
+        when(restTemplate.exchange(
+                eq("https://example.com/upload"),
+                eq(HttpMethod.PUT),
+                any(HttpEntity.class),
+                eq(String.class)
+        )).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
+
+        assertThrows(TiktokVideoPublishingException.class,
+                () -> tiktokClient.uploadVideo(mockMultipartFile, "https://example.com/upload"),
+                "Failed to upload video chunk: 400 Bad Request");
     }
 }
