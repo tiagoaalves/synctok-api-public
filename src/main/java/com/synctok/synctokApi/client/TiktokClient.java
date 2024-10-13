@@ -38,8 +38,8 @@ public final class TiktokClient {
      */
     @Autowired
     public TiktokClient(
-            final RestTemplate restTemplate,
-            @Value("${tiktok.access-token}") final String accessToken) {
+            RestTemplate restTemplate,
+            @Value("${tiktok.access-token}") String accessToken) {
         this.restTemplate = restTemplate;
         this.accessToken = accessToken;
     }
@@ -52,7 +52,7 @@ public final class TiktokClient {
      * @return a VideoUploadInitializationResult containing the upload URL and publish ID
      * @throws TiktokVideoPublishingException if the initialization fails
      */
-    public VideoUploadInitializationResult initializeVideoUpload(final MultipartFile videoFile, final String title) {
+    public VideoUploadInitializationResult initializeVideoUpload(MultipartFile videoFile, String title) {
         if (videoFile.getSize() > MAX_FILE_SIZE) {
             throw new TiktokVideoPublishingException("File size exceeds maximum allowed size");
         }
@@ -83,9 +83,9 @@ public final class TiktokClient {
     }
 
     private static HttpEntity<String> getInitializeVideoUploadRequest(
-            final MultipartFile videoFile,
-            final String title,
-            final HttpHeaders headers) {
+            MultipartFile videoFile,
+            String title,
+            HttpHeaders headers) {
         long fileSize = videoFile.getSize();
         int chunkSize = Math.min(CHUNK_SIZE, (int) fileSize);
         int totalChunkCount = (int) Math.ceil((double) fileSize / chunkSize);
@@ -115,7 +115,7 @@ public final class TiktokClient {
      * @throws IOException if there's an error reading the video file
      * @throws TiktokVideoPublishingException if the upload fails
      */
-    public void uploadVideo(final MultipartFile videoFile, final String uploadUrl) throws IOException {
+    public void uploadVideo(MultipartFile videoFile, String uploadUrl) throws IOException {
         long fileSize = videoFile.getSize();
         byte[] fileContent = videoFile.getBytes();
 
@@ -125,8 +125,8 @@ public final class TiktokClient {
         }
     }
 
-    private void uploadChunk(final byte[] fileContent, final int start, final int end,
-                             final long totalSize, final String uploadUrl) {
+    private void uploadChunk(byte[] fileContent, int start, int end,
+                             long totalSize, String uploadUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setBearerAuth(accessToken);

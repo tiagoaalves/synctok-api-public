@@ -42,8 +42,8 @@ public final class YoutubeClient {
      */
     @Autowired
     public YoutubeClient(
-            final RestTemplate restTemplate,
-            @Value("${youtube.access-token}") final String accessToken) {
+            RestTemplate restTemplate,
+            @Value("${youtube.access-token}") String accessToken) {
         this.restTemplate = restTemplate;
         this.accessToken = accessToken;
     }
@@ -57,7 +57,7 @@ public final class YoutubeClient {
      * @return the ID of the uploaded video
      * @throws YoutubeVideoPublishingException if the upload fails
      */
-    public String uploadVideo(final MultipartFile videoFile, final String title, final String description) {
+    public String uploadVideo(MultipartFile videoFile, String title, String description) {
         if (videoFile.getSize() > MAX_FILE_SIZE) {
             throw new YoutubeVideoPublishingException("File size exceeds maximum allowed size");
         }

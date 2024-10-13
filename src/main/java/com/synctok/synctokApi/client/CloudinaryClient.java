@@ -25,7 +25,7 @@ public final class CloudinaryClient {
      * @param cloudinary the Cloudinary instance to use for file operations
      */
     @Autowired
-    public CloudinaryClient(final Cloudinary cloudinary) {
+    public CloudinaryClient(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
@@ -36,7 +36,7 @@ public final class CloudinaryClient {
      * @return the public URL of the uploaded file
      * @throws IOException if there's an error during file upload
      */
-    public String uploadAndGetPublicUrl(final MultipartFile file) throws IOException {
+    public String uploadAndGetPublicUrl(MultipartFile file) throws IOException {
         Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("resource_type", "video"));
         return (String) uploadResult.get("url");

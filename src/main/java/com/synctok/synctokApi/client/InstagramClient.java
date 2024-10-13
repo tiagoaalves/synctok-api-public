@@ -44,9 +44,9 @@ public final class InstagramClient {
      */
     @Autowired
     public InstagramClient(
-            final RestTemplate restTemplate,
-            @Value("${instagram.access-token}") final String accessToken,
-            @Value("${instagram.account-id}") final String accountId) {
+            RestTemplate restTemplate,
+            @Value("${instagram.access-token}") String accessToken,
+            @Value("${instagram.account-id}") String accountId) {
         this.restTemplate = restTemplate;
         this.accessToken = accessToken;
         this.accountId = accountId;
@@ -59,7 +59,7 @@ public final class InstagramClient {
      * @return the ID of the created media container
      * @throws MediaContainerCreationException if the container creation fails
      */
-    public String createMediaContainer(final String videoUrl) {
+    public String createMediaContainer(String videoUrl) {
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -90,7 +90,7 @@ public final class InstagramClient {
      * @return the ID of the published media
      * @throws MediaPublishException if the media publishing fails
      */
-    public String publishMedia(final String creationId) throws MediaPublishException {
+    public String publishMedia(String creationId) throws MediaPublishException {
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media_publish", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -155,7 +155,7 @@ public final class InstagramClient {
         }
     }
 
-    private String encodeCaption(final String caption) {
+    private String encodeCaption(String caption) {
         try {
             return URLEncoder.encode(caption, UTF_8);
         } catch (Exception e) {
