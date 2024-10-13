@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class VideoService {
+
     private final Map<String, PlatformStrategy> strategies;
     private final CloudinaryClient cloudinaryClient;
 
