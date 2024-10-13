@@ -9,8 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Component
-public class TiktokStrategy implements PlatformStrategy {
+public class TiktokStrategy implements FilePlatformStrategy {
 
+    private MultipartFile videoFile;
     private final TiktokClient tiktokClient;
 
     @Autowired
@@ -19,9 +20,13 @@ public class TiktokStrategy implements PlatformStrategy {
     }
 
     @Override
-    public void publishVideo(MultipartFile videoFile, String videoUrl) throws IOException {
+    public void setVideoFile(MultipartFile videoFile) {
+        this.videoFile = videoFile;
+    }
+
+    @Override
+    public void publishVideo() throws IOException {
         VideoUploadInitializationResult videoInitializationResult = tiktokClient.initializeVideoUpload(videoFile, "caption #test #dev");
         tiktokClient.uploadVideo(videoFile, videoInitializationResult.uploadUrl());
-        System.out.println("Publishing video to Tiktok: " + videoUrl);
     }
 }

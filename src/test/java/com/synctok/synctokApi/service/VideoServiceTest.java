@@ -3,6 +3,9 @@ package com.synctok.synctokApi.service;
 import com.synctok.synctokApi.client.CloudinaryClient;
 import com.synctok.synctokApi.exception.UnsupportedPlatformException;
 import com.synctok.synctokApi.service.strategy.InstagramStrategy;
+import com.synctok.synctokApi.service.strategy.TiktokStrategy;
+import com.synctok.synctokApi.service.strategy.UrlPlatformStrategy;
+import com.synctok.synctokApi.service.strategy.FilePlatformStrategy;
 import com.synctok.synctokApi.service.strategy.PlatformStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +19,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,9 @@ class VideoServiceTest {
     private InstagramStrategy instagramStrategy;
 
     @Mock
+    private TiktokStrategy tiktokStrategy;
+
+    @Mock
     private MultipartFile videoFile;
 
     private VideoService videoService;
@@ -40,13 +44,12 @@ class VideoServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        List<PlatformStrategy> strategies = List.of(instagramStrategy);
+        List<PlatformStrategy> strategies = List.of(instagramStrategy, tiktokStrategy);
         videoService = new VideoService(strategies, cloudinaryClient);
     }
 
     @Test
-    void publishVideo_SuccessfulPublish() throws IOException {
+    void publishVideo_SuccessfulPublishUrlStrategy() throws IOException {
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("instagram");
 
@@ -55,7 +58,24 @@ class VideoServiceTest {
         assertDoesNotThrow(() -> videoService.publishVideo(videoFile, platforms));
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy).publishVideo(videoFile, videoUrl);
+        verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
+        verify(instagramStrategy).publishVideo();
+        verify(tiktokStrategy, never()).publishVideo();
+    }
+
+    @Test
+    void publishVideo_SuccessfulPublishFileStrategy() throws IOException {
+        String videoUrl = "http://example.com/video.mp4";
+        List<String> platforms = List.of("tiktok");
+
+        when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
+
+        assertDoesNotThrow(() -> videoService.publishVideo(videoFile, platforms));
+
+        verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
+        verify((FilePlatformStrategy)tiktokStrategy).setVideoFile(videoFile);
+        verify(tiktokStrategy).publishVideo();
+        verify(instagramStrategy, never()).publishVideo();
     }
 
     @Test
@@ -69,7 +89,8 @@ class VideoServiceTest {
                 () -> videoService.publishVideo(videoFile, platforms));
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy, never()).publishVideo(any(), anyString());
+        verify(instagramStrategy, never()).publishVideo();
+        verify(tiktokStrategy, never()).publishVideo();
     }
 
     @Test
@@ -81,7 +102,8 @@ class VideoServiceTest {
         assertThrows(IOException.class, () -> videoService.publishVideo(videoFile, platforms));
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy, never()).publishVideo(any(), anyString());
+        verify(instagramStrategy, never()).publishVideo();
+        verify(tiktokStrategy, never()).publishVideo();
     }
 
     @Test
@@ -90,12 +112,13 @@ class VideoServiceTest {
         List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
-        doThrow(new RuntimeException("Publish failed")).when(instagramStrategy).publishVideo(videoFile, videoUrl);
+        doThrow(new RuntimeException("Publish failed")).when(instagramStrategy).publishVideo();
 
         assertThrows(RuntimeException.class, () -> videoService.publishVideo(videoFile, platforms));
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy).publishVideo(videoFile, videoUrl);
+        verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
+        verify(instagramStrategy).publishVideo();
     }
 
     @Test
@@ -108,6 +131,23 @@ class VideoServiceTest {
         assertDoesNotThrow(() -> videoService.publishVideo(videoFile, platforms));
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy).publishVideo(videoFile, videoUrl);
+        verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
+        verify(instagramStrategy).publishVideo();
+    }
+
+    @Test
+    void publishVideo_MultipleStrategies() throws IOException {
+        String videoUrl = "http://example.com/video.mp4";
+        List<String> platforms = List.of("instagram", "tiktok");
+
+        when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
+
+        assertDoesNotThrow(() -> videoService.publishVideo(videoFile, platforms));
+
+        verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
+        verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
+        verify(instagramStrategy).publishVideo();
+        verify((FilePlatformStrategy)tiktokStrategy).setVideoFile(videoFile);
+        verify(tiktokStrategy).publishVideo();
     }
 }
