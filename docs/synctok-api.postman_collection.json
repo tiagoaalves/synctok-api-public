@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "b3c904a0-6a66-48e5-8313-ba328ba6a659",
+		"name": "synctok-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9472707"
+	},
+	"item": [
+		{
+			"name": "tiktok-api",
+			"item": [
+				{
+					"name": "get user access token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "client_key",
+									"value": "sbawr3hcf787zk4l2v",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "cffqjahe2PeXar9osCoC72WJ36DCuiBX",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "w-hVWiwcwj5N9Jy2Wp2DAj_FVcxPycL4Y0Mzq9-wQZhKWkUxTAtbEggb0zGJZF-MXW9FEKK1ztW3YyI_fX3wvA1ZjT-MsKdwN2GYLyS3P8wGLykml6shqe-ERFYZCD5D3e2qfie8dgRWAkXLRnwK0g%2A1%215889.e1",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "https://google.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://open.tiktokapis.com/v2/oauth/token/",
+							"protocol": "https",
+							"host": [
+								"open",
+								"tiktokapis",
+								"com"
+							],
+							"path": [
+								"v2",
+								"oauth",
+								"token",
+								""
+							]
+						},
+						"description": "Generated from cURL: curl --location --request POST 'https://open.tiktokapis.com/v2/oauth/token/' \\\n--header 'Content-Type: application/x-www-form-urlencoded' \\\n--header 'Cache-Control: no-cache' \\\n--data-urlencode 'client_key=CLIENT_KEY' \\\n--data-urlencode 'client_secret=CLIENT_SECRET' \\\n--data-urlencode 'code=CODE' \\\n--data-urlencode 'grant_type=authorization_code' \\\n--data-urlencode 'redirect_uri=REDIRECT_URI'"
+					},
+					"response": []
+				},
+				{
+					"name": "init video publishing",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer act.jC9feFpKJn8eORTTlLmqcirGpAfLzY4TeiGDNAZBB6Cc0GJ3zKaFVbDRigQI!5919.e1"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json; charset=UTF-8"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"post_info\": {\n    \"title\": \"this will be a funny #cat video on your @tiktok #fyp\",\n    \"privacy_level\": \"SELF_ONLY\"\n  },\n  \"source_info\": {\n      \"source\": \"FILE_UPLOAD\",\n      \"video_size\": 50000123,\n      \"chunk_size\":  10000000,\n      \"total_chunk_count\": 5\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+							"protocol": "https",
+							"host": [
+								"open",
+								"tiktokapis",
+								"com"
+							],
+							"path": [
+								"v2",
+								"post",
+								"publish",
+								"video",
+								"init",
+								""
+							]
+						},
+						"description": "Generated from cURL: curl --location 'https://open.tiktokapis.com/v2/post/publish/video/init/' \\\n--header 'Authorization: Bearer act.example12345Example12345Example' \\\n--header 'Content-Type: application/json; charset=UTF-8' \\\n--data-raw '{\n  \"post_info\": {\n    \"title\": \"this will be a funny #cat video on your @tiktok #fyp\",\n    \"privacy_level\": \"MUTUAL_FOLLOW_FRIENDS\",\n    \"disable_duet\": false,\n    \"disable_comment\": true,\n    \"disable_stitch\": false,\n    \"video_cover_timestamp_ms\": 1000\n  },\n  \"source_info\": {\n      \"source\": \"FILE_UPLOAD\",\n      \"video_size\": 50000123,\n      \"chunk_size\":  10000000,\n      \"total_chunk_count\": 5\n  }\n}'"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "instagram-api",
+			"item": [
+				{
+					"name": "check status code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://graph.instagram.com/v20.0/18017115989262736?fields=status_code,status,error_message&access_token=IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD",
+							"protocol": "https",
+							"host": [
+								"graph",
+								"instagram",
+								"com"
+							],
+							"path": [
+								"v20.0",
+								"18017115989262736"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "status_code,status,error_message"
+								},
+								{
+									"key": "access_token",
+									"value": "IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://graph.instagram.com/v20.0/me?fields=user_id,username,account_type,media_count,profile_picture_url&access_token=IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD",
+							"protocol": "https",
+							"host": [
+								"graph",
+								"instagram",
+								"com"
+							],
+							"path": [
+								"v20.0",
+								"me"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "user_id,username,account_type,media_count,profile_picture_url"
+								},
+								{
+									"key": "access_token",
+									"value": "IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list container",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://graph.instagram.com/v20.0/17841459612606396/media?access_token=IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD",
+							"protocol": "https",
+							"host": [
+								"graph",
+								"instagram",
+								"com"
+							],
+							"path": [
+								"v20.0",
+								"17841459612606396",
+								"media"
+							],
+							"query": [
+								{
+									"key": "access_token",
+									"value": "IGQWRPWGVYb1YtOWRxS3VDYzM2R0p6bjBsOHdKRDU0RUJ6Wm50RG9sckJoc0tKTU9fYlk3bGdOaXpGcTQwT2FDWnpNRm1CdDh5SG5xTllWOUVsdzRxc0hXVjE3R0l3UF9oOTMxSHZAMTHJSTHJnbXN3M3BHazd1OEEZD"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "youtube-api",
+			"item": [
+				{
+					"name": "get access token from code",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "YOUR_AUTHORIZATION_CODE",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "YOUR_CLIENT_ID",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "YOUR_CLIENT_SECRET",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "YOUR_REDIRECT_URI",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://oauth2.googleapis.com/token",
+							"protocol": "https",
+							"host": [
+								"oauth2",
+								"googleapis",
+								"com"
+							],
+							"path": [
+								"token"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST \\\n  -H \"Content-Type: application/x-www-form-urlencoded\" \\\n  -d \"code=YOUR_AUTHORIZATION_CODE\" \\\n  -d \"client_id=YOUR_CLIENT_ID\" \\\n  -d \"client_secret=YOUR_CLIENT_SECRET\" \\\n  -d \"redirect_uri=YOUR_REDIRECT_URI\" \\\n  -d \"grant_type=authorization_code\" \\\n  https://oauth2.googleapis.com/token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "publish video",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "video",
+							"type": "file",
+							"src": "/home/tiago/Downloads/sample_instagram_reel.mp4"
+						},
+						{
+							"key": "platforms",
+							"value": "instagram,tiktok,youtube",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/video/publish",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"video",
+						"publish"
+					]
+				},
+				"description": "Generated from cURL: curl --location 'http://localhost:8080/api/videos/publish' \\\n--form 'video=@\"/path/to/your/video.mp4\"' \\\n--form 'platforms=\"instagram,tiktok\"'"
+			},
+			"response": []
+		}
+	]
+}
