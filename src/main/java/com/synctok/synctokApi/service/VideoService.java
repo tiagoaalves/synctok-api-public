@@ -2,7 +2,9 @@ package com.synctok.synctokApi.service;
 
 import com.synctok.synctokApi.client.CloudinaryClient;
 import com.synctok.synctokApi.exception.UnsupportedPlatformException;
+import com.synctok.synctokApi.service.strategy.FilePlatformStrategy;
 import com.synctok.synctokApi.service.strategy.PlatformStrategy;
+import com.synctok.synctokApi.service.strategy.UrlPlatformStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,11 +36,12 @@ public class VideoService {
 
         for (String platform : platforms) {
             PlatformStrategy strategy = strategies.get(platform.toLowerCase());
-            if (strategy == null) {
-                throw new UnsupportedPlatformException(platform);
+            switch (strategy) {
+                case UrlPlatformStrategy urlPlatformStrategy -> urlPlatformStrategy.setVideoUrl(videoUrl);
+                case FilePlatformStrategy filePlatformStrategy -> filePlatformStrategy.setVideoFile(videoFile);
+                case null, default -> throw new UnsupportedPlatformException(platform);
             }
-            strategy.publishVideo(videoFile, videoUrl);
+            strategy.publishVideo();
         }
     }
-
 }
