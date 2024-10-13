@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class YoutubeStrategy implements PlatformStrategy {
+public class YoutubeStrategy implements FilePlatformStrategy {
 
+    private MultipartFile videoFile;
     private final YoutubeClient youtubeClient;
 
     @Autowired
@@ -16,9 +17,13 @@ public class YoutubeStrategy implements PlatformStrategy {
     }
 
     @Override
-    public void publishVideo(MultipartFile videoFile, String videoUrl) {
+    public void setVideoFile(MultipartFile videoFile) {
+        this.videoFile = videoFile;
+    }
+
+    @Override
+    public void publishVideo() {
         String publishedVideoUrl = youtubeClient.uploadVideo(videoFile, "title", "description");
         System.out.println("Video published to Youtube with the id: " + publishedVideoUrl);
     }
-
 }
