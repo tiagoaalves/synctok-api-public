@@ -86,11 +86,6 @@ Multipart form data:
 ```json
 {
   "message": "Video successfully uploaded and published to TikTok, Instagram, YouTube",
-  "videoUrls": {
-    "tiktok": "https://www.tiktok.com/@user/video/1234567890",
-    "instagram": "https://www.instagram.com/p/abcdefghij/",
-    "youtube": "https://youtu.be/dQw4w9WgXcQ"
-  }
 }
 ```
 
