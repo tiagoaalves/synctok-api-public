@@ -20,15 +20,26 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+/**
+ * Client for interacting with the YouTube API.
+ * This class provides methods for uploading videos to YouTube.
+ */
 @Component
-public class YoutubeClient {
+public final class YoutubeClient {
 
-    private static final String UPLOAD_URL = "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status";
+    private static final String UPLOAD_URL =
+            "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status";
     private static final long MAX_FILE_SIZE = 256L * 1024 * 1024 * 1024; // 256GB
 
     private final RestTemplate restTemplate;
     private final String accessToken;
 
+    /**
+     * Constructs a new YoutubeClient with the specified RestTemplate and access token.
+     *
+     * @param restTemplate the RestTemplate to use for HTTP requests
+     * @param accessToken the YouTube API access token
+     */
     @Autowired
     public YoutubeClient(
             RestTemplate restTemplate,
@@ -37,6 +48,15 @@ public class YoutubeClient {
         this.accessToken = accessToken;
     }
 
+    /**
+     * Uploads a video to YouTube.
+     *
+     * @param videoFile the video file to upload
+     * @param title the title of the video
+     * @param description the description of the video
+     * @return the ID of the uploaded video
+     * @throws YoutubeVideoPublishingException if the upload fails
+     */
     public String uploadVideo(MultipartFile videoFile, String title, String description) {
         if (videoFile.getSize() > MAX_FILE_SIZE) {
             throw new YoutubeVideoPublishingException("File size exceeds maximum allowed size");
@@ -95,7 +115,8 @@ public class YoutubeClient {
                 System.out.println(jsonResponse);
                 return jsonResponse.getString("id");
             } else {
-                throw new YoutubeVideoPublishingException("Failed to upload video. Status code: " + response.getStatusCode());
+                throw new YoutubeVideoPublishingException("Failed to upload video. Status code: "
+                        + response.getStatusCode());
             }
         } catch (HttpClientErrorException e) {
             throw new YoutubeVideoPublishingException("Failed to upload video: " + e.getResponseBodyAsString(), e);

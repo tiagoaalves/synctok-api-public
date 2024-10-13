@@ -5,12 +5,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Implementation of FilePlatformStrategy for YouTube video publishing.
+ * This class handles the process of uploading and publishing videos to YouTube.
+ */
 @Component
-public class YoutubeStrategy implements FilePlatformStrategy {
-
+public final class YoutubeStrategy implements FilePlatformStrategy {
     private MultipartFile videoFile;
     private final YoutubeClient youtubeClient;
 
+    /**
+     * Constructs a new YoutubeStrategy with the specified YoutubeClient.
+     *
+     * @param youtubeClient the client used for interacting with YouTube's API
+     */
     @Autowired
     public YoutubeStrategy(YoutubeClient youtubeClient) {
         this.youtubeClient = youtubeClient;
