@@ -9,9 +9,19 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for the application.
+ * This class handles various exceptions and provides appropriate HTTP responses.
+ */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public final class GlobalExceptionHandler {
 
+    /**
+     * Handles UnsupportedPlatformException.
+     *
+     * @param ex the exception to handle
+     * @return a ResponseEntity with error details
+     */
     @ExceptionHandler(UnsupportedPlatformException.class)
     public ResponseEntity<Object> handleUnsupportedPlatformException(UnsupportedPlatformException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -22,6 +32,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handles MediaContainerCreationException.
+     *
+     * @param ex the exception to handle
+     * @return a ResponseEntity with error details
+     */
     @ExceptionHandler(MediaContainerCreationException.class)
     public ResponseEntity<Object> handleMediaContainerCreationException(MediaContainerCreationException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -33,6 +49,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /**
+     * Handles MediaPublishException.
+     *
+     * @param ex the exception to handle
+     * @return a ResponseEntity with error details
+     */
     @ExceptionHandler(MediaPublishException.class)
     public ResponseEntity<Object> handleMediaPublishException(MediaPublishException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
@@ -44,20 +66,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(TiktokAuthException.class)
-    public ResponseEntity<Object> handleTiktokAuthException(TiktokAuthException ex) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        body.put("error", "TikTok Authentication Failed");
-        if (ex.getCause() != null) {
-            body.put("details", ex.getCause().getMessage());
-        }
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
-    }
-
+    /**
+     * Handles TiktokVideoPublishingException.
+     *
+     * @param ex the exception to handle
+     * @return a ResponseEntity with error details
+     */
     @ExceptionHandler(TiktokVideoPublishingException.class)
-    public ResponseEntity<Object> handleTiktokVideoPublisingException(TiktokVideoPublishingException ex) {
+    public ResponseEntity<Object> handleTiktokVideoPublishingException(TiktokVideoPublishingException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());

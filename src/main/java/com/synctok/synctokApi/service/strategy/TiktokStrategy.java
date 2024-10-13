@@ -5,18 +5,25 @@ import com.synctok.synctokApi.client.TiktokClient.VideoUploadInitializationResul
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 
+/**
+ * Implementation of FilePlatformStrategy for TikTok video publishing.
+ * This class handles the process of uploading and publishing videos to TikTok.
+ */
 @Component
-public class TiktokStrategy implements FilePlatformStrategy {
-
+public final class TiktokStrategy implements FilePlatformStrategy {
     private MultipartFile videoFile;
     private final TiktokClient tiktokClient;
 
+    /**
+     * Constructs a new TiktokStrategy with the specified TiktokClient.
+     *
+     * @param tiktokClient the client used for interacting with TikTok's API
+     */
     @Autowired
-    public TiktokStrategy(TiktokClient tikTokClient) {
-        this.tiktokClient = tikTokClient;
+    public TiktokStrategy(TiktokClient tiktokClient) {
+        this.tiktokClient = tiktokClient;
     }
 
     @Override
@@ -26,7 +33,9 @@ public class TiktokStrategy implements FilePlatformStrategy {
 
     @Override
     public void publishVideo() throws IOException {
-        VideoUploadInitializationResult videoInitializationResult = tiktokClient.initializeVideoUpload(videoFile, "caption #test #dev");
+        VideoUploadInitializationResult videoInitializationResult = tiktokClient.initializeVideoUpload(
+                videoFile, "caption #test #dev"
+        );
         tiktokClient.uploadVideo(videoFile, videoInitializationResult.uploadUrl());
     }
 }

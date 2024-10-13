@@ -22,24 +22,44 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpMethod.GET;
 
+/**
+ * Client for interacting with the Instagram API.
+ * This class provides methods for creating media containers and publishing media on Instagram.
+ */
 @Component
-public class InstagramClient {
+public final class InstagramClient {
 
     private final RestTemplate restTemplate;
     private final String accessToken;
     private final String accountId;
+    private static final int MAX_RETRIES = 5;
+    private static final int INITIAL_RETRY_DELAY_MS = 2000;
 
+    /**
+     * Constructs a new InstagramClient with the specified RestTemplate and credentials.
+     *
+     * @param restTemplate the RestTemplate to use for HTTP requests
+     * @param accessToken the Instagram API access token
+     * @param accountId the Instagram account ID
+     */
     @Autowired
     public InstagramClient(
-            RestTemplate restTemplate,
-            @Value("${instagram.access-token}") String accessToken,
-            @Value("${instagram.account-id}") String accountId) {
+            final RestTemplate restTemplate,
+            @Value("${instagram.access-token}") final String accessToken,
+            @Value("${instagram.account-id}") final String accountId) {
         this.restTemplate = restTemplate;
         this.accessToken = accessToken;
         this.accountId = accountId;
     }
 
-    public String createMediaContainer(String videoUrl) {
+    /**
+     * Creates a media container for a video on Instagram.
+     *
+     * @param videoUrl the URL of the video to be uploaded
+     * @return the ID of the created media container
+     * @throws MediaContainerCreationException if the container creation fails
+     */
+    public String createMediaContainer(final String videoUrl) {
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -63,7 +83,14 @@ public class InstagramClient {
         }
     }
 
-    public String publishMedia(String creationId) throws MediaPublishException {
+    /**
+     * Publishes a media container on Instagram.
+     *
+     * @param creationId the ID of the media container to publish
+     * @return the ID of the published media
+     * @throws MediaPublishException if the media publishing fails
+     */
+    public String publishMedia(final String creationId) throws MediaPublishException {
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media_publish", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -73,17 +100,17 @@ public class InstagramClient {
         );
         HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
 
-        int maxRetries = 5;
-        int retryDelayMs = 2000;
+        int retryDelayMs = INITIAL_RETRY_DELAY_MS;
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 ResponseEntity<String> response = restTemplate.postForEntity(requestUrl, request, String.class);
                 JSONObject jsonResponse = new JSONObject(response.getBody());
                 return jsonResponse.getString("id"); // This is the ID of the published media
             } catch (HttpClientErrorException e) {
-                if (e.getStatusCode() == HttpStatus.BAD_REQUEST && e.getResponseBodyAsString().contains("Media ID is not available")) {
-                    if (attempt == maxRetries) {
+                if (e.getStatusCode() == HttpStatus.BAD_REQUEST
+                        && e.getResponseBodyAsString().contains("Media ID is not available")) {
+                    if (attempt == MAX_RETRIES) {
                         throw new MediaPublishException("Failed to publish media after max retries", e, creationId);
                     }
                     try {
@@ -104,7 +131,13 @@ public class InstagramClient {
         throw new MediaPublishException("Failed to publish media after max retries", creationId);
     }
 
-    public String checkContainerStatus(String creationId) {
+    /**
+     * Checks the status of a media container.
+     *
+     * @param creationId the ID of the media container to check
+     * @return the status code of the media container
+     */
+    public String checkContainerStatus(final String creationId) {
         String url = String.format("https://graph.instagram.com/v12.0/%s?fields=status_code", creationId);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -122,7 +155,7 @@ public class InstagramClient {
         }
     }
 
-    private String encodeCaption(String caption) {
+    private String encodeCaption(final String caption) {
         try {
             return URLEncoder.encode(caption, UTF_8);
         } catch (Exception e) {

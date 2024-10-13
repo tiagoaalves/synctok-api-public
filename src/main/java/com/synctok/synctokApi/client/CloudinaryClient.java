@@ -9,21 +9,36 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Client for interacting with the Cloudinary service.
+ * This class provides methods for uploading files to Cloudinary and retrieving their public URLs.
+ */
 @Component
 @SuppressWarnings("unchecked")
-public class CloudinaryClient {
+public final class CloudinaryClient {
 
     private final Cloudinary cloudinary;
 
+    /**
+     * Constructs a new CloudinaryClient with the specified Cloudinary instance.
+     *
+     * @param cloudinary the Cloudinary instance to use for file operations
+     */
     @Autowired
-    public CloudinaryClient(Cloudinary cloudinary) {
+    public CloudinaryClient(final Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
-    public String uploadAndGetPublicUrl(MultipartFile file) throws IOException {
+    /**
+     * Uploads a file to Cloudinary and retrieves its public URL.
+     *
+     * @param file the MultipartFile to upload
+     * @return the public URL of the uploaded file
+     * @throws IOException if there's an error during file upload
+     */
+    public String uploadAndGetPublicUrl(final MultipartFile file) throws IOException {
         Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("resource_type", "video"));
         return (String) uploadResult.get("url");
     }
-
 }

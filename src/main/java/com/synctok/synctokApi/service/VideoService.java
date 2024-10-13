@@ -15,12 +15,21 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for handling video publishing operations across multiple platforms.
+ * This class uses the strategy pattern to support different platform-specific publishing strategies.
+ */
 @Service
-public class VideoService {
-
+public final class VideoService {
     private final Map<String, PlatformStrategy> strategies;
     private final CloudinaryClient cloudinaryClient;
 
+    /**
+     * Constructs a new VideoService with the specified strategies and CloudinaryClient.
+     *
+     * @param strategies       the list of platform-specific publishing strategies
+     * @param cloudinaryClient the client used for uploading videos to Cloudinary
+     */
     @Autowired
     public VideoService(List<PlatformStrategy> strategies, CloudinaryClient cloudinaryClient) {
         this.strategies = strategies.stream()
@@ -31,9 +40,15 @@ public class VideoService {
         this.cloudinaryClient = cloudinaryClient;
     }
 
+    /**
+     * Publishes a video to the specified platforms.
+     *
+     * @param videoFile the MultipartFile containing the video to be published
+     * @param platforms the list of platforms to publish the video to
+     * @throws IOException if there's an error during video upload or publishing
+     */
     public void publishVideo(MultipartFile videoFile, List<String> platforms) throws IOException {
         String videoUrl = cloudinaryClient.uploadAndGetPublicUrl(videoFile);
-
         for (String platform : platforms) {
             PlatformStrategy strategy = strategies.get(platform.toLowerCase());
             switch (strategy) {
