@@ -53,7 +53,8 @@ public final class VideoController {
         return videoService.publishVideo(video, platforms)
                 .thenApply(_ -> {
                     logger.info("Video successfully published to platforms: {}", platforms);
-                    return ResponseEntity.ok("Video successfully uploaded and published to " + String.join(", ", platforms));
+                    return ResponseEntity.ok("Video successfully uploaded and published to "
+                            + String.join(", ", platforms));
                 })
                 .exceptionally(ex -> {
                     logger.error("Error occurred while publishing video", ex);
