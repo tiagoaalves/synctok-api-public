@@ -43,7 +43,7 @@ class YoutubeClientTest {
     }
 
     @Test
-    void uploadVideo_Success() throws IOException {
+    void publishVideo_Success() throws IOException {
         String successResponse = "{\"id\":\"test-video-id\"}";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
         when(restTemplate.exchange(
@@ -57,22 +57,22 @@ class YoutubeClientTest {
         when(mockMultipartFile.getBytes()).thenReturn(new byte[1024]);
         when(mockMultipartFile.getOriginalFilename()).thenReturn("test-video.mp4");
 
-        String result = youtubeClient.uploadVideo(mockMultipartFile, "Test Video Title", "Test Description");
+        String result = youtubeClient.publishVideo(mockMultipartFile, "Test Video Title", "Test Description");
 
         assertEquals("test-video-id", result);
     }
 
     @Test
-    void uploadVideo_FileTooLarge() {
+    void publishVideo_FileTooLarge() {
         when(mockMultipartFile.getSize()).thenReturn(257L * 1024 * 1024 * 1024); // 257 GB, exceeding the 256 GB limit
 
         assertThrows(YoutubeVideoPublishingException.class,
-                () -> youtubeClient.uploadVideo(mockMultipartFile, "Test Video Title", "Test Description"),
+                () -> youtubeClient.publishVideo(mockMultipartFile, "Test Video Title", "Test Description"),
                 "File size exceeds maximum allowed size");
     }
 
     @Test
-    void uploadVideo_HttpClientErrorException() throws IOException {
+    void publishVideo_HttpClientErrorException() throws IOException {
         when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
         when(mockMultipartFile.getBytes()).thenReturn(new byte[1024]);
         when(mockMultipartFile.getOriginalFilename()).thenReturn("test-video.mp4");
@@ -85,12 +85,12 @@ class YoutubeClientTest {
         )).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Bad Request"));
 
         YoutubeVideoPublishingException exception = assertThrows(YoutubeVideoPublishingException.class,
-                () -> youtubeClient.uploadVideo(mockMultipartFile, "Test Video Title", "Test Description"));
+                () -> youtubeClient.publishVideo(mockMultipartFile, "Test Video Title", "Test Description"));
         assertTrue(exception.getMessage().startsWith("Failed to upload video:"));
     }
 
     @Test
-    void uploadVideo_NonOkResponseStatus() throws IOException {
+    void publishVideo_NonOkResponseStatus() throws IOException {
         when(mockMultipartFile.getSize()).thenReturn(1024L); // 1 KB file size
         when(mockMultipartFile.getBytes()).thenReturn(new byte[1024]);
         when(mockMultipartFile.getOriginalFilename()).thenReturn("test-video.mp4");
@@ -104,12 +104,12 @@ class YoutubeClientTest {
         )).thenReturn(responseEntity);
 
         assertThrows(YoutubeVideoPublishingException.class,
-                () -> youtubeClient.uploadVideo(mockMultipartFile, "Test Video Title", "Test Description"),
+                () -> youtubeClient.publishVideo(mockMultipartFile, "Test Video Title", "Test Description"),
                 "Failed to upload video. Status code: 201");
     }
 
     @Test
-    void uploadVideo_PrivacyStatusSetToPrivate() throws IOException {
+    void publishVideo_PrivacyStatusSetToPrivate() throws IOException {
         String successResponse = "{\"id\":\"test-video-id\"}";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(successResponse, HttpStatus.OK);
         when(restTemplate.exchange(
@@ -126,7 +126,7 @@ class YoutubeClientTest {
         when(mockMultipartFile.getBytes()).thenReturn(new byte[1024]);
         when(mockMultipartFile.getOriginalFilename()).thenReturn("test-video.mp4");
 
-        String result = youtubeClient.uploadVideo(mockMultipartFile, "Test Video Title", "Test Description");
+        String result = youtubeClient.publishVideo(mockMultipartFile, "Test Video Title", "Test Description");
 
         assertEquals("test-video-id", result);
     }

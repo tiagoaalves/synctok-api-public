@@ -4,6 +4,8 @@ import com.synctok.synctokApi.exception.MediaContainerCreationException;
 import com.synctok.synctokApi.exception.MediaPublishException;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpMethod.GET;
@@ -34,6 +37,7 @@ public final class InstagramClient {
     private final String accountId;
     private static final int MAX_RETRIES = 5;
     private static final int INITIAL_RETRY_DELAY_MS = 2000;
+    private static final Logger logger = LoggerFactory.getLogger(InstagramClient.class);
 
     /**
      * Constructs a new InstagramClient with the specified RestTemplate and credentials.
@@ -60,6 +64,7 @@ public final class InstagramClient {
      * @throws MediaContainerCreationException if the container creation fails
      */
     public String createMediaContainer(String videoUrl) {
+        logger.info("Creating Instagram media container for video: {}", videoUrl);
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -75,6 +80,7 @@ public final class InstagramClient {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(requestUrl, request, String.class);
             JSONObject jsonResponse = new JSONObject(response.getBody());
+            logger.info("Instagram media container creation response: {}", jsonResponse);
             return jsonResponse.getString("id");
         } catch (HttpClientErrorException e) {
             throw new MediaContainerCreationException("Failed to create media container", e, videoUrl);
@@ -91,6 +97,7 @@ public final class InstagramClient {
      * @throws MediaPublishException if the media publishing fails
      */
     public String publishMedia(String creationId) throws MediaPublishException {
+        logger.info("Publishing media container to Instagram with creation ID: {}", creationId);
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media_publish", accountId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -105,8 +112,9 @@ public final class InstagramClient {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 ResponseEntity<String> response = restTemplate.postForEntity(requestUrl, request, String.class);
-                JSONObject jsonResponse = new JSONObject(response.getBody());
-                return jsonResponse.getString("id"); // This is the ID of the published media
+                JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response.getBody()));
+                logger.info("Instagram media container publish response: {}", jsonResponse);
+                return jsonResponse.getString("id");
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode() == HttpStatus.BAD_REQUEST
                         && e.getResponseBodyAsString().contains("Media ID is not available")) {

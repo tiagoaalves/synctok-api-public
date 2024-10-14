@@ -3,6 +3,8 @@ package com.synctok.synctokApi.client;
 import com.synctok.synctokApi.exception.TiktokVideoPublishingException;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -26,6 +28,7 @@ import java.io.IOException;
 public final class TiktokClient {
     private static final int CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB chunk size
     private static final long MAX_FILE_SIZE = 500L * 1024 * 1024; // 500 MB, adjust as per TikTok's limits
+    private static final Logger logger = LoggerFactory.getLogger(TiktokClient.class);
 
     private final RestTemplate restTemplate;
     private final String accessToken;
@@ -52,7 +55,7 @@ public final class TiktokClient {
      * @return a VideoUploadInitializationResult containing the upload URL and publish ID
      * @throws TiktokVideoPublishingException if the initialization fails
      */
-    public VideoUploadInitializationResult initializeVideoUpload(MultipartFile videoFile, String title) {
+    public VideoUploadInitializationResult initializeVideoPublish(MultipartFile videoFile, String title) {
         if (videoFile.getSize() > MAX_FILE_SIZE) {
             throw new TiktokVideoPublishingException("File size exceeds maximum allowed size");
         }
@@ -64,6 +67,7 @@ public final class TiktokClient {
 
         HttpEntity<String> request = getInitializeVideoUploadRequest(videoFile, title, headers);
         try {
+            logger.info("Publishing video to Tiktok: {}", request);
             ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.POST, request, String.class);
             String responseBody = response.getBody();
             if (responseBody == null || responseBody.isEmpty()) {
@@ -73,6 +77,7 @@ public final class TiktokClient {
             JSONObject data = jsonResponse.getJSONObject("data");
             String uploadUrlResult = data.getString("upload_url");
             String publishId = data.getString("publish_id");
+            logger.info("Tiktok video publish initialization response: {}", jsonResponse);
             return new VideoUploadInitializationResult(uploadUrlResult, publishId);
         } catch (HttpClientErrorException e) {
             throw new TiktokVideoPublishingException("Failed to initialize video upload: "
@@ -115,18 +120,18 @@ public final class TiktokClient {
      * @throws IOException if there's an error reading the video file
      * @throws TiktokVideoPublishingException if the upload fails
      */
-    public void uploadVideo(MultipartFile videoFile, String uploadUrl) throws IOException {
+    public void publishVideo(MultipartFile videoFile, String uploadUrl) throws IOException {
         long fileSize = videoFile.getSize();
         byte[] fileContent = videoFile.getBytes();
 
         for (int chunkStart = 0; chunkStart < fileSize; chunkStart += CHUNK_SIZE) {
             int chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, (int) fileSize - 1);
-            uploadChunk(fileContent, chunkStart, chunkEnd, fileSize, uploadUrl);
+            publishChunk(fileContent, chunkStart, chunkEnd, fileSize, uploadUrl);
         }
     }
 
-    private void uploadChunk(byte[] fileContent, int start, int end,
-                             long totalSize, String uploadUrl) {
+    private void publishChunk(byte[] fileContent, int start, int end,
+                              long totalSize, String uploadUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setBearerAuth(accessToken);
@@ -138,6 +143,7 @@ public final class TiktokClient {
         HttpEntity<byte[]> requestEntity = new HttpEntity<>(chunk, headers);
 
         try {
+            logger.info("Publishing chunk to Tiktok: {}-{}-{}", start, end, requestEntity);
             ResponseEntity<String> response = restTemplate.exchange(
                     uploadUrl,
                     HttpMethod.PUT,
@@ -149,8 +155,8 @@ public final class TiktokClient {
                 throw new TiktokVideoPublishingException("Failed to upload video chunk. Status code: "
                         + response.getStatusCode());
             }
-            System.out.println("Uploaded chunk: " + start + "-" + end);
-
+            JSONObject jsonResponse = new JSONObject(response.getBody());
+            logger.info("Tiktok chunk publish response: {}-{}-{}", start, end, jsonResponse);
         } catch (HttpClientErrorException e) {
             throw new TiktokVideoPublishingException("Failed to upload video chunk: "
                     + e.getResponseBodyAsString(), e);

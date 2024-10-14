@@ -33,20 +33,20 @@ class YoutubeStrategyTest {
 
     @Test
     void publishVideo_ShouldUploadVideoSuccessfully() {
-        when(youtubeClient.uploadVideo(videoFile, "title", "description")).thenReturn("video-id");
+        when(youtubeClient.publishVideo(videoFile, "title", "description")).thenReturn("video-id");
 
         assertDoesNotThrow(() -> youtubeStrategy.publishVideo());
-        verify(youtubeClient).uploadVideo(videoFile, "title", "description");
+        verify(youtubeClient).publishVideo(videoFile, "title", "description");
     }
 
     @Test
     void publishVideo_ShouldThrowExceptionWhenUploadFails() {
-        when(youtubeClient.uploadVideo(videoFile, "title", "description"))
+        when(youtubeClient.publishVideo(videoFile, "title", "description"))
                 .thenThrow(new RuntimeException("Upload failed"));
 
         Exception exception = assertThrows(RuntimeException.class, () -> youtubeStrategy.publishVideo());
         assertEquals("Upload failed", exception.getMessage());
-        verify(youtubeClient).uploadVideo(videoFile, "title", "description");
+        verify(youtubeClient).publishVideo(videoFile, "title", "description");
     }
 
     @Test
@@ -54,9 +54,9 @@ class YoutubeStrategyTest {
         MultipartFile newVideoFile = mock(MultipartFile.class);
         youtubeStrategy.setVideoFile(newVideoFile);
 
-        when(youtubeClient.uploadVideo(newVideoFile, "title", "description")).thenReturn("new-video-id");
+        when(youtubeClient.publishVideo(newVideoFile, "title", "description")).thenReturn("new-video-id");
 
         assertDoesNotThrow(() -> youtubeStrategy.publishVideo());
-        verify(youtubeClient).uploadVideo(newVideoFile, "title", "description");
+        verify(youtubeClient).publishVideo(newVideoFile, "title", "description");
     }
 }

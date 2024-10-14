@@ -31,7 +31,7 @@ public final class YoutubeStrategy implements FilePlatformStrategy {
 
     @Override
     public void publishVideo() {
-        String publishedVideoUrl = youtubeClient.uploadVideo(videoFile, "title", "description");
+        String publishedVideoUrl = youtubeClient.publishVideo(videoFile, "title", "description");
         System.out.println("Video published to Youtube with the id: " + publishedVideoUrl);
     }
 }
