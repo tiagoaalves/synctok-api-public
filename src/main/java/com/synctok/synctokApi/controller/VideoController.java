@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * REST controller for handling video-related operations.
@@ -41,10 +42,18 @@ public final class VideoController {
      * @throws IOException if there's an error handling the video file
      */
     @PostMapping("/publish")
-    public ResponseEntity<String> publishVideo(
+    public CompletableFuture<ResponseEntity<String>> publishVideo(
             @RequestParam("video") MultipartFile video,
             @RequestParam("platforms") List<String> platforms) throws IOException {
-        videoService.publishVideo(video, platforms);
-        return ResponseEntity.ok("Video successfully uploaded and published to " + String.join(", ", platforms));
+
+        return videoService.publishVideo(video, platforms)
+                .thenApply(_ -> ResponseEntity
+                        .ok("Video successfully uploaded and published to " + String.join(", ", platforms)))
+                .exceptionally(ex -> {
+                    // Log the exception
+                    ex.printStackTrace();
+                    return ResponseEntity.internalServerError()
+                            .body("An error occurred while publishing the video: " + ex.getMessage());
+                });
     }
 }

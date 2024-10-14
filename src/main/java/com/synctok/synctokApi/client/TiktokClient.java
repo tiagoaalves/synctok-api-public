@@ -149,6 +149,7 @@ public final class TiktokClient {
                 throw new TiktokVideoPublishingException("Failed to upload video chunk. Status code: "
                         + response.getStatusCode());
             }
+            System.out.println("Uploaded chunk: " + start + "-" + end);
 
         } catch (HttpClientErrorException e) {
             throw new TiktokVideoPublishingException("Failed to upload video chunk: "
