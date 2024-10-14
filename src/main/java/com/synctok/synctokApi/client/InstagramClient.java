@@ -113,9 +113,8 @@ public final class InstagramClient {
             try {
                 ResponseEntity<String> response = restTemplate.postForEntity(requestUrl, request, String.class);
                 JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response.getBody()));
-                String publishedMediaId = jsonResponse.getString("id");
-                logger.info("Instagram media container publish response: {}", publishedMediaId);
-                return publishedMediaId;
+                logger.info("Instagram media container publish response: {}", jsonResponse);
+                return jsonResponse.getString("id");
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode() == HttpStatus.BAD_REQUEST
                         && e.getResponseBodyAsString().contains("Media ID is not available")) {

@@ -124,7 +124,7 @@ class TiktokClientTest {
 
         String mockResponseBody = "{\"success\":true}";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(mockResponseBody, HttpStatus.CREATED);
-        
+
         when(restTemplate.exchange(
                 eq("https://example.com/upload"),
                 eq(HttpMethod.PUT),
