@@ -1,6 +1,8 @@
 package com.synctok.synctokApi.controller;
 
 import com.synctok.synctokApi.service.VideoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
 public final class VideoController {
 
     private final VideoService videoService;
+    private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
+
 
     /**
      * Constructs a new VideoController with the specified VideoService.
@@ -45,13 +49,14 @@ public final class VideoController {
     public CompletableFuture<ResponseEntity<String>> publishVideo(
             @RequestParam("video") MultipartFile video,
             @RequestParam("platforms") List<String> platforms) throws IOException {
-
+        logger.info("Received request to publish video to platforms: {}", platforms);
         return videoService.publishVideo(video, platforms)
-                .thenApply(_ -> ResponseEntity
-                        .ok("Video successfully uploaded and published to " + String.join(", ", platforms)))
+                .thenApply(_ -> {
+                    logger.info("Video successfully published to platforms: {}", platforms);
+                    return ResponseEntity.ok("Video successfully uploaded and published to " + String.join(", ", platforms));
+                })
                 .exceptionally(ex -> {
-                    // Log the exception
-                    ex.printStackTrace();
+                    logger.error("Error occurred while publishing video", ex);
                     return ResponseEntity.internalServerError()
                             .body("An error occurred while publishing the video: " + ex.getMessage());
                 });

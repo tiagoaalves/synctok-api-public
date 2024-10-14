@@ -5,6 +5,8 @@ import com.synctok.synctokApi.exception.UnsupportedPlatformException;
 import com.synctok.synctokApi.service.strategy.FilePlatformStrategy;
 import com.synctok.synctokApi.service.strategy.PlatformStrategy;
 import com.synctok.synctokApi.service.strategy.UrlPlatformStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 public final class VideoService {
     private final Map<String, PlatformStrategy> strategies;
     private final CloudinaryClient cloudinaryClient;
+    private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
+
 
     /**
      * Constructs a new VideoService with the specified strategies and CloudinaryClient.
@@ -50,16 +54,24 @@ public final class VideoService {
      * @throws IOException if there's an error during video upload
      */
     public CompletableFuture<Void> publishVideo(MultipartFile videoFile, List<String> platforms) throws IOException {
+        logger.info("Starting video publication process for platforms: {}", platforms);
         String videoUrl = cloudinaryClient.uploadAndGetPublicUrl(videoFile);
+        logger.info("Video uploaded to Cloudinary. Public URL: {}", videoUrl);
+
         List<CompletableFuture<Void>> futures = platforms.stream()
                 .map(platform -> CompletableFuture.runAsync(() -> {
+                    logger.info("Publishing to platform: {}", platform);
                     publishToPlatform(videoFile, videoUrl, platform);
+                    logger.info("Successfully published to platform: {}", platform);
                 }))
                 .toList();
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                .thenRun(() -> logger.info("Video published to all platforms successfully"));
     }
 
     private void publishToPlatform(MultipartFile videoFile, String videoUrl, String platform) {
+        logger.info("Starting publication process for platform: {}", platform);
         PlatformStrategy strategy = strategies.get(platform.toLowerCase());
         try {
             switch (strategy) {

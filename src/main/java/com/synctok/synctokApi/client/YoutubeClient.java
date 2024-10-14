@@ -2,6 +2,8 @@ package com.synctok.synctokApi.client;
 
 import com.synctok.synctokApi.exception.YoutubeVideoPublishingException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -30,6 +32,7 @@ public final class YoutubeClient {
     private static final String UPLOAD_URL =
             "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=multipart&part=snippet,status";
     private static final long MAX_FILE_SIZE = 256L * 1024 * 1024 * 1024; // 256GB
+    private static final Logger logger = LoggerFactory.getLogger(YoutubeClient.class);
 
     private final RestTemplate restTemplate;
     private final String accessToken;
@@ -57,7 +60,7 @@ public final class YoutubeClient {
      * @return the ID of the uploaded video
      * @throws YoutubeVideoPublishingException if the upload fails
      */
-    public String uploadVideo(MultipartFile videoFile, String title, String description) {
+    public String publishVideo(MultipartFile videoFile, String title, String description) {
         if (videoFile.getSize() > MAX_FILE_SIZE) {
             throw new YoutubeVideoPublishingException("File size exceeds maximum allowed size");
         }
@@ -103,6 +106,7 @@ public final class YoutubeClient {
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
+            logger.debug("Publishing video to YouTube: {}", requestEntity);
             ResponseEntity<String> response = restTemplate.exchange(
                     UPLOAD_URL,
                     HttpMethod.POST,
@@ -112,7 +116,7 @@ public final class YoutubeClient {
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 JSONObject jsonResponse = new JSONObject(response.getBody());
-                System.out.println(jsonResponse);
+                logger.info("Youtube video publish response: {}", jsonResponse);
                 return jsonResponse.getString("id");
             } else {
                 throw new YoutubeVideoPublishingException("Failed to upload video. Status code: "
