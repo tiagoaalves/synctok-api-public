@@ -50,10 +50,15 @@ public final class VideoService {
      *
      * @param videoFile the MultipartFile containing the video to be published
      * @param platforms the list of platforms to publish the video to
+     * @param title     the title of the video
      * @return CompletableFuture<Void> representing the completion of all publishing operations
      * @throws IOException if there's an error during video upload
      */
-    public CompletableFuture<Void> publishVideo(MultipartFile videoFile, List<String> platforms) throws IOException {
+    public CompletableFuture<Void> publishVideo(
+            MultipartFile videoFile,
+            List<String> platforms,
+            String title
+    ) throws IOException {
         logger.info("Starting video publication process for platforms: {}", platforms);
         String videoUrl = cloudinaryClient.uploadAndGetPublicUrl(videoFile);
         logger.info("Video uploaded to Cloudinary. Public URL: {}", videoUrl);
@@ -61,7 +66,7 @@ public final class VideoService {
         List<CompletableFuture<Void>> futures = platforms.stream()
                 .map(platform -> CompletableFuture.runAsync(() -> {
                     logger.info("Publishing to platform: {}", platform);
-                    publishToPlatform(videoFile, videoUrl, platform);
+                    publishToPlatform(videoFile, videoUrl, platform, title);
                     logger.info("Successfully published to platform: {}", platform);
                 }))
                 .toList();
@@ -70,7 +75,7 @@ public final class VideoService {
                 .thenRun(() -> logger.info("Video published to all platforms successfully"));
     }
 
-    private void publishToPlatform(MultipartFile videoFile, String videoUrl, String platform) {
+    private void publishToPlatform(MultipartFile videoFile, String videoUrl, String platform, String title) {
         logger.info("Starting publication process for platform: {}", platform);
         PlatformStrategy strategy = strategies.get(platform.toLowerCase());
         try {
@@ -79,7 +84,7 @@ public final class VideoService {
                 case FilePlatformStrategy filePlatformStrategy -> filePlatformStrategy.setVideoFile(videoFile);
                 case null, default -> throw new UnsupportedPlatformException(platform);
             }
-            strategy.publishVideo();
+            strategy.publishVideo(title);
         } catch (UnsupportedPlatformException e) {
             throw e;  // Re-throw UnsupportedPlatformException directly
         } catch (Exception e) {

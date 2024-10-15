@@ -291,6 +291,11 @@
               "key": "platforms",
               "value": "instagram,tiktok",
               "type": "text"
+            },
+            {
+              "key": "title",
+              "value": "title #dev",
+              "type": "text"
             }
           ]
         },

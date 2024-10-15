@@ -54,117 +54,124 @@ class VideoServiceTest {
 
     @Test
     void publishVideo_SuccessfulPublishUrlStrategy() throws IOException, ExecutionException, InterruptedException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         assertDoesNotThrow(() -> result.get());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
         verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
-        verify(instagramStrategy).publishVideo();
-        verify(tiktokStrategy, never()).publishVideo();
+        verify(instagramStrategy).publishVideo(title);
+        verify(tiktokStrategy, never()).publishVideo(title);
     }
 
     @Test
     void publishVideo_SuccessfulPublishFileStrategy() throws IOException, ExecutionException, InterruptedException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("tiktok");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         assertDoesNotThrow(() -> result.get());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
         verify((FilePlatformStrategy)tiktokStrategy).setVideoFile(videoFile);
-        verify(tiktokStrategy).publishVideo();
-        verify(instagramStrategy, never()).publishVideo();
+        verify(tiktokStrategy).publishVideo(title);
+        verify(instagramStrategy, never()).publishVideo(title);
     }
 
     @Test
     void publishVideo_UnsupportedPlatform() throws IOException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("unsupported");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         ExecutionException exception = assertThrows(ExecutionException.class, result::get);
         assertInstanceOf(UnsupportedPlatformException.class, exception.getCause());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy, never()).publishVideo();
-        verify(tiktokStrategy, never()).publishVideo();
+        verify(instagramStrategy, never()).publishVideo(title);
+        verify(tiktokStrategy, never()).publishVideo(title);
     }
 
     @Test
     void publishVideo_CloudinaryClientThrowsIOException() throws Exception {
+        String title = "title";
         List<String> platforms = List.of("instagram");
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenThrow(new IOException("Upload failed"));
 
-        IOException exception = assertThrows(IOException.class, () -> videoService.publishVideo(videoFile, platforms));
+        IOException exception = assertThrows(IOException.class, () -> videoService.publishVideo(videoFile, platforms, title));
 
         assertEquals("Upload failed", exception.getMessage());
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
-        verify(instagramStrategy, never()).publishVideo();
-        verify(tiktokStrategy, never()).publishVideo();
+        verify(instagramStrategy, never()).publishVideo(title);
+        verify(tiktokStrategy, never()).publishVideo(title);
     }
 
     @Test
     void publishVideo_StrategyThrowsException() throws IOException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("instagram");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
-        doThrow(new RuntimeException("Publish failed")).when(instagramStrategy).publishVideo();
+        doThrow(new RuntimeException("Publish failed")).when(instagramStrategy).publishVideo(title);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         ExecutionException exception = assertThrows(ExecutionException.class, result::get);
         assertInstanceOf(RuntimeException.class, exception.getCause());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
         verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
-        verify(instagramStrategy).publishVideo();
+        verify(instagramStrategy).publishVideo(title);
     }
 
     @Test
     void publishVideo_CaseInsensitivePlatformNames() throws IOException, ExecutionException, InterruptedException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("InStAgRaM");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         assertDoesNotThrow(() -> result.get());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
         verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
-        verify(instagramStrategy).publishVideo();
+        verify(instagramStrategy).publishVideo(title);
     }
 
     @Test
     void publishVideo_MultipleStrategies() throws IOException, ExecutionException, InterruptedException {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         List<String> platforms = List.of("instagram", "tiktok");
 
         when(cloudinaryClient.uploadAndGetPublicUrl(videoFile)).thenReturn(videoUrl);
 
-        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms);
+        CompletableFuture<Void> result = videoService.publishVideo(videoFile, platforms, title);
 
         assertDoesNotThrow(() -> result.get());
 
         verify(cloudinaryClient).uploadAndGetPublicUrl(videoFile);
         verify((UrlPlatformStrategy)instagramStrategy).setVideoUrl(videoUrl);
-        verify(instagramStrategy).publishVideo();
+        verify(instagramStrategy).publishVideo(title);
         verify((FilePlatformStrategy)tiktokStrategy).setVideoFile(videoFile);
-        verify(tiktokStrategy).publishVideo();
+        verify(tiktokStrategy).publishVideo(title);
     }
 }

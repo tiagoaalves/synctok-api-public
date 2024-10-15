@@ -32,9 +32,9 @@ public final class TiktokStrategy implements FilePlatformStrategy {
     }
 
     @Override
-    public void publishVideo() throws IOException {
+    public void publishVideo(String title) throws IOException {
         VideoUploadInitializationResult videoInitializationResult = tiktokClient.initializeVideoPublish(
-                videoFile, "caption #test #dev"
+                videoFile, title
         );
         tiktokClient.publishVideo(videoFile, videoInitializationResult.uploadUrl());
     }

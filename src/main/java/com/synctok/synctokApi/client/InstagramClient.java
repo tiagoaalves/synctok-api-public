@@ -60,10 +60,11 @@ public final class InstagramClient {
      * Creates a media container for a video on Instagram.
      *
      * @param videoUrl the URL of the video to be uploaded
+     * @param title the title of the video
      * @return the ID of the created media container
      * @throws MediaContainerCreationException if the container creation fails
      */
-    public String createMediaContainer(String videoUrl) {
+    public String createMediaContainer(String videoUrl, String title) {
         logger.info("Creating Instagram media container for video: {}", videoUrl);
         String requestUrl = String.format("https://graph.facebook.com/v20.0/%s/media", accountId);
         HttpHeaders headers = new HttpHeaders();
@@ -72,7 +73,7 @@ public final class InstagramClient {
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("video_url", videoUrl);
         requestBody.put("media_type", "REELS");
-        requestBody.put("caption", encodeCaption("caption"));
+        requestBody.put("caption", encodeCaption(title));
         requestBody.put("access_token", accessToken);
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(requestBody, headers);
