@@ -44,17 +44,7 @@ cd synctok-api
 
 <h3>Config .env variables</h3>
 
-Create a `.env` file in the project root from the `.env.example` with your API credentials:
-
-```yaml
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-TIKTOK_ACCESS_TOKEN=your_tiktok_access_token
-INSTAGRAM_ACCESS_TOKEN=your_instagram_access_token
-INSTAGRAM_ACCOUNT_ID=your_instagram_account_id
-YOUTUBE_ACCESS_TOKEN=your_youtube_access_token
-```
+Create a `.env` file in the project root from the `.env.example` with your API credentials.
 
 <h3>Starting</h3>
 
