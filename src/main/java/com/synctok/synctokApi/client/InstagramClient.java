@@ -60,6 +60,7 @@ public final class InstagramClient {
      * Creates a media container for a video on Instagram.
      *
      * @param videoUrl the URL of the video to be uploaded
+     * @param title the title of the video
      * @return the ID of the created media container
      * @throws MediaContainerCreationException if the container creation fails
      */

@@ -50,6 +50,7 @@ public final class VideoService {
      *
      * @param videoFile the MultipartFile containing the video to be published
      * @param platforms the list of platforms to publish the video to
+     * @param title     the title of the video
      * @return CompletableFuture<Void> representing the completion of all publishing operations
      * @throws IOException if there's an error during video upload
      */

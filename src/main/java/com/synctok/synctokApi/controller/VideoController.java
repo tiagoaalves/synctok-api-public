@@ -42,6 +42,7 @@ public final class VideoController {
      *
      * @param video     the video file to be published
      * @param platforms the list of platforms to publish the video to
+     * @param title     the title of the video
      * @return a ResponseEntity containing a success message
      * @throws IOException if there's an error handling the video file
      */

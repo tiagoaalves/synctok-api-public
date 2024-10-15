@@ -13,6 +13,7 @@ public interface PlatformStrategy {
      * The specific implementation of this method will handle the details of
      * uploading and publishing the video on the respective platform.
      *
+     * @param title the title of the video to be published
      * @throws IOException if there is an error during the video publishing process
      */
     void publishVideo(String title) throws IOException;
