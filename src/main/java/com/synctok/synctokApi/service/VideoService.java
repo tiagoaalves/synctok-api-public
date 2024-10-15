@@ -53,7 +53,11 @@ public final class VideoService {
      * @return CompletableFuture<Void> representing the completion of all publishing operations
      * @throws IOException if there's an error during video upload
      */
-    public CompletableFuture<Void> publishVideo(MultipartFile videoFile, List<String> platforms, String title) throws IOException {
+    public CompletableFuture<Void> publishVideo(
+            MultipartFile videoFile,
+            List<String> platforms,
+            String title
+    ) throws IOException {
         logger.info("Starting video publication process for platforms: {}", platforms);
         String videoUrl = cloudinaryClient.uploadAndGetPublicUrl(videoFile);
         logger.info("Video uploaded to Cloudinary. Public URL: {}", videoUrl);
