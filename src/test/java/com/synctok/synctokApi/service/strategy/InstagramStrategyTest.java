@@ -31,45 +31,48 @@ class InstagramStrategyTest {
 
     @Test
     void publishVideo_SuccessfulPublish() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         String mediaContainerId = "media123";
 
         instagramStrategy.setVideoUrl(videoUrl);
-        when(instagramClient.createMediaContainer(videoUrl)).thenReturn(mediaContainerId);
+        when(instagramClient.createMediaContainer(videoUrl, title)).thenReturn(mediaContainerId);
 
-        assertDoesNotThrow(() -> instagramStrategy.publishVideo());
+        assertDoesNotThrow(() -> instagramStrategy.publishVideo(title));
 
-        verify(instagramClient).createMediaContainer(videoUrl);
+        verify(instagramClient).createMediaContainer(videoUrl, title);
         verify(instagramClient).publishMedia(mediaContainerId);
     }
 
     @Test
     void publishVideo_MediaContainerCreationFails() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         RuntimeException expectedException = new RuntimeException("Creation failed");
 
         instagramStrategy.setVideoUrl(videoUrl);
-        when(instagramClient.createMediaContainer(videoUrl)).thenThrow(expectedException);
+        when(instagramClient.createMediaContainer(videoUrl, title)).thenThrow(expectedException);
 
-        assertThrows(RuntimeException.class, () -> instagramStrategy.publishVideo());
+        assertThrows(RuntimeException.class, () -> instagramStrategy.publishVideo(title));
 
-        verify(instagramClient).createMediaContainer(videoUrl);
+        verify(instagramClient).createMediaContainer(videoUrl, title);
         verify(instagramClient, never()).publishMedia(anyString());
     }
 
     @Test
     void publishVideo_PublishMediaFails() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         String mediaContainerId = "media123";
         RuntimeException expectedException = new RuntimeException("Publish failed");
 
         instagramStrategy.setVideoUrl(videoUrl);
-        when(instagramClient.createMediaContainer(videoUrl)).thenReturn(mediaContainerId);
+        when(instagramClient.createMediaContainer(videoUrl, title)).thenReturn(mediaContainerId);
         doThrow(expectedException).when(instagramClient).publishMedia(mediaContainerId);
 
-        assertThrows(RuntimeException.class, () -> instagramStrategy.publishVideo());
+        assertThrows(RuntimeException.class, () -> instagramStrategy.publishVideo(title));
 
-        verify(instagramClient).createMediaContainer(videoUrl);
+        verify(instagramClient).createMediaContainer(videoUrl, title);
         verify(instagramClient).publishMedia(mediaContainerId);
     }
 

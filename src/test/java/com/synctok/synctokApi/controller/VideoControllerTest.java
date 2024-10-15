@@ -32,12 +32,13 @@ public class VideoControllerTest {
     public void testPublishVideo_Success() throws Exception {
         MockMultipartFile videoFile = new MockMultipartFile("video", "test.mp4", "video/mp4", "test video content".getBytes());
 
-        when(videoService.publishVideo(any(), any()))
+        when(videoService.publishVideo(any(), any(), any()))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         MvcResult mvcResult = mockMvc.perform(multipart("/api/v1/video/publish")
                         .file(videoFile)
-                        .param("platforms", "instagram,facebook"))
+                        .param("platforms", "instagram,facebook")
+                        .param("title", "title"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -50,12 +51,13 @@ public class VideoControllerTest {
     public void testPublishVideo_Error() throws Exception {
         MockMultipartFile videoFile = new MockMultipartFile("video", "test.mp4", "video/mp4", "test video content".getBytes());
 
-        when(videoService.publishVideo(any(), any()))
+        when(videoService.publishVideo(any(), any(), any()))
                 .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Publishing failed")));
 
         MvcResult mvcResult = mockMvc.perform(multipart("/api/v1/video/publish")
                         .file(videoFile)
-                        .param("platforms", "instagram,facebook"))
+                        .param("platforms", "instagram,facebook")
+                        .param("title", "title"))
                 .andExpect(request().asyncStarted())
                 .andReturn();
 

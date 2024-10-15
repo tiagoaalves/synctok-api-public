@@ -37,6 +37,7 @@ class InstagramClientTest {
 
     @Test
     void createMediaContainer_Success() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         String responseBody = "{\"id\":\"123456\"}";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -44,7 +45,7 @@ class InstagramClientTest {
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenReturn(responseEntity);
 
-        String result = instagramClient.createMediaContainer(videoUrl);
+        String result = instagramClient.createMediaContainer(videoUrl, title);
 
         assertEquals("123456", result);
         verify(restTemplate).postForEntity(contains("/media"), any(), eq(String.class));
@@ -52,15 +53,17 @@ class InstagramClientTest {
 
     @Test
     void createMediaContainer_HttpClientErrorException() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
-        assertThrows(MediaContainerCreationException.class, () -> instagramClient.createMediaContainer(videoUrl));
+        assertThrows(MediaContainerCreationException.class, () -> instagramClient.createMediaContainer(videoUrl, title));
     }
 
     @Test
     void createMediaContainer_InvalidJsonResponse() {
+        String title = "title";
         String videoUrl = "http://example.com/video.mp4";
         String responseBody = "invalid json";
         ResponseEntity<String> responseEntity = new ResponseEntity<>(responseBody, HttpStatus.OK);
@@ -68,7 +71,7 @@ class InstagramClientTest {
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenReturn(responseEntity);
 
-        assertThrows(MediaContainerCreationException.class, () -> instagramClient.createMediaContainer(videoUrl));
+        assertThrows(MediaContainerCreationException.class, () -> instagramClient.createMediaContainer(videoUrl, title));
     }
 
     @Test
