@@ -47,10 +47,11 @@ public final class VideoController {
      */
     @PostMapping("/publish")
     public CompletableFuture<ResponseEntity<String>> publishVideo(
+            @RequestParam("title") String title,
             @RequestParam("video") MultipartFile video,
             @RequestParam("platforms") List<String> platforms) throws IOException {
         logger.info("Received request to publish video to platforms: {}", platforms);
-        return videoService.publishVideo(video, platforms)
+        return videoService.publishVideo(video, platforms, title)
                 .thenApply(_ -> ResponseEntity.ok("Video successfully uploaded and published to "
                         + String.join(", ", platforms)))
                 .exceptionally(ex -> {

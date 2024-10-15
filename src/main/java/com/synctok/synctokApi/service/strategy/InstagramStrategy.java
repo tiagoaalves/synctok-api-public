@@ -29,8 +29,8 @@ public final class InstagramStrategy implements UrlPlatformStrategy {
     }
 
     @Override
-    public void publishVideo() {
-        String mediaContainerId = instagramClient.createMediaContainer(videoUrl);
+    public void publishVideo(String title) {
+        String mediaContainerId = instagramClient.createMediaContainer(videoUrl, title);
         instagramClient.publishMedia(mediaContainerId);
     }
 }

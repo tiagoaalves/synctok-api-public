@@ -15,5 +15,5 @@ public interface PlatformStrategy {
      *
      * @throws IOException if there is an error during the video publishing process
      */
-    void publishVideo() throws IOException;
+    void publishVideo(String title) throws IOException;
 }
