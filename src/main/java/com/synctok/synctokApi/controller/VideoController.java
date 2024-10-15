@@ -51,11 +51,8 @@ public final class VideoController {
             @RequestParam("platforms") List<String> platforms) throws IOException {
         logger.info("Received request to publish video to platforms: {}", platforms);
         return videoService.publishVideo(video, platforms)
-                .thenApply(_ -> {
-                    logger.info("Video successfully published to platforms: {}", platforms);
-                    return ResponseEntity.ok("Video successfully uploaded and published to "
-                            + String.join(", ", platforms));
-                })
+                .thenApply(_ -> ResponseEntity.ok("Video successfully uploaded and published to "
+                        + String.join(", ", platforms)))
                 .exceptionally(ex -> {
                     logger.error("Error occurred while publishing video", ex);
                     return ResponseEntity.internalServerError()
